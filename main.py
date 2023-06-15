@@ -1,19 +1,23 @@
 import os
+import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 from time import sleep
-import pandas as pd
 
-USERNAME: str = os.getenv('USERNAME')
-PASSWORD: str = os.getenv('PASSWORD')
+from dotenv import load_dotenv
+
+load_dotenv()
+
+USERNAME: str = os.getenv('SINAI_USERNAME')
+PASSWORD: str = os.getenv('SINAI_PASSWORD')
 
 HOME_PAGE: str = 'https://sinai.net.co/Web/Default.aspx'
 GRADES_PAGE: str = 'https://sinai.net.co/Docente/018/Calificaciones.aspx'
 
 def read_data(path: str)-> pd.DataFrame:
     grades_df = pd.read_csv(path, sep=';')
-    return grades_df.loc[:,~grades_df.columns.str.contains('Unnamed')]
+    return grades_df.loc[:, ~grades_df.columns.str.contains('Unnamed')]
 
 def login(username: str, password: str, driver)-> None:
     driver.find_element(by=By.ID, value='UsernameTxt').send_keys(username)
@@ -21,7 +25,7 @@ def login(username: str, password: str, driver)-> None:
     driver.find_element(by=By.ID, value='Entrar').click()
 
 def edit_grade(i: int, grade:float, driver)-> None:
-    grade_element_id = f'ctl00_ContentPlaceHolder1_ParcialesRpt_ctl{i:02d}_Nota1'
+    grade_element_id: str = f'ctl00_ContentPlaceHolder1_ParcialesRpt_ctl{i:02d}_Nota1'
     grade_element = driver.find_element(by=By.ID, value=grade_element_id)
     grade_element.clear()
     grade_element.send_keys(grade)
